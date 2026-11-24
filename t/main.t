@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!perl
 use strict;
 use warnings FATAL => 'all';
 
@@ -85,8 +85,13 @@ check_table(
 );
 
 my @violations = $critic->critique( \q{if ($x) {} elsif ($y) { f() } else {}} );
-is_deeply( [ map { $_->description } @violations ],   [ 'Empty if block', 'Empty else block' ], 'each violation names the keyword of its block' );
-is_deeply( [ map { $_->column_number } @violations ], [ 1,                31 ],                 'and points at that keyword' );
+my ( @descriptions, @columns );
+foreach my $violation (@violations) {
+    push @descriptions, $violation->description;
+    push @columns,      $violation->column_number;
+}
+is_deeply( \@descriptions, [ 'Empty if block', 'Empty else block' ], 'each violation names the keyword of its block' );
+is_deeply( \@columns,      [ 1,                31 ],                 'and points at that keyword' );
 
 is( scalar( () = warnings { Perl::Critic->new( -profile => q{}, '-single-policy' => $POLICY ) } ), 0, 'nothing warns on construction' );
 
